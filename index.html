@@ -381,6 +381,7 @@ async function renderW(){
 }
 function openG(){if(!DESK.matches)return;renderW();$('wall').classList.remove('hidden');$('fwc').classList.add('over')}
 $('gal').onclick=openG;$('gal2').onclick=openG;
+startGalleryPolling(renderW);
 $('wclose').onclick=function(){$('wall').classList.add('hidden');$('fwc').classList.remove('over')};
 $('lbx').onclick=function(){$('lb').classList.add('hidden')};
 $('lbdel').onclick=async function(){if(lbRec){await del(lbRec.id);deletePhoto(lbRec.id,lbRec.storage_path).catch(function(e){console.error('[Supabase]',e)});lbRec=null}$('lb').classList.add('hidden');renderW()};
