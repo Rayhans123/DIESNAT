@@ -138,3 +138,19 @@ async function fetchStripsFromSupabase() {
   }
   return await res.json();
 }
+
+/* Auto-refresh gallery tiap 5 detik kalau photo wall sedang terbuka */
+function startGalleryPolling(renderFn) {
+  var lastCount = 0;
+  setInterval(async function () {
+    /* Hanya jalan kalau wall sedang tampil */
+    var wall = document.getElementById('wall');
+    if (!wall || wall.classList.contains('hidden')) return;
+
+    var rows = await fetchStripsFromSupabase();
+    if (rows.length !== lastCount) {
+      lastCount = rows.length;
+      renderFn();
+    }
+  }, 5000);
+}
