@@ -87,20 +87,27 @@ async function uploadPhoto(photoFile) {
 }
 
 async function deletePhoto(id, storagePath) {
-  // 1. Hapus file dari Storage
+  const BUCKET = 'images';
+
+  // 1. Hapus file dari Storage (gunakan endpoint /remove dengan body JSON)
   if (storagePath) {
+    // Supabase Storage mengharapkan array of prefixes, strip "photos/" prefix jika ada
     const delStorage = await fetch(
-      `${SUPABASE_URL}/storage/v1/object/images/${storagePath}`,
+      `${SUPABASE_URL}/storage/v1/object/${BUCKET}`,
       {
         method: 'DELETE',
         headers: {
           apikey: SUPABASE_ANON,
-          Authorization: `Bearer ${SUPABASE_ANON}`
-        }
+          Authorization: `Bearer ${SUPABASE_ANON}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ prefixes: [storagePath] })
       }
     );
     if (!delStorage.ok) {
       console.warn('[Supabase] Storage delete gagal:', await delStorage.text());
+    } else {
+      console.log('[Supabase] File storage berhasil dihapus:', storagePath);
     }
   }
 
