@@ -89,23 +89,21 @@ async function uploadPhoto(photoFile) {
 async function deletePhoto(id, storagePath) {
   const BUCKET = 'images';
 
-  // 1. Hapus file dari Storage (gunakan endpoint /remove dengan body JSON)
+  // 1. Hapus file dari Storage
   if (storagePath) {
-    // Supabase Storage mengharapkan array of prefixes, strip "photos/" prefix jika ada
     const delStorage = await fetch(
-      `${SUPABASE_URL}/storage/v1/object/${BUCKET}`,
+      `${SUPABASE_URL}/storage/v1/object/${BUCKET}/${storagePath}`,
       {
         method: 'DELETE',
         headers: {
           apikey: SUPABASE_ANON,
-          Authorization: `Bearer ${SUPABASE_ANON}`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ prefixes: [storagePath] })
+          Authorization: `Bearer ${SUPABASE_ANON}`
+        }
       }
     );
+    const storageText = await delStorage.text();
     if (!delStorage.ok) {
-      console.warn('[Supabase] Storage delete gagal:', await delStorage.text());
+      console.warn('[Supabase] Storage delete gagal (status ' + delStorage.status + '):', storageText);
     } else {
       console.log('[Supabase] File storage berhasil dihapus:', storagePath);
     }
@@ -118,15 +116,18 @@ async function deletePhoto(id, storagePath) {
       method: 'DELETE',
       headers: {
         apikey: SUPABASE_ANON,
-        Authorization: `Bearer ${SUPABASE_ANON}`
+        Authorization: `Bearer ${SUPABASE_ANON}`,
+        Prefer: 'return=representation'
       }
     }
   );
+  const dbText = await delDb.text();
+  console.log('[Supabase] DB delete status:', delDb.status, dbText);
   if (!delDb.ok) {
-    throw new Error(`Delete metadata gagal: ${await delDb.text()}`);
+    throw new Error('Delete metadata gagal (status ' + delDb.status + '): ' + dbText);
   }
 
-  console.log('[Supabase] Foto berhasil dihapus:', id);
+  console.log('[Supabase] Foto berhasil dihapus dari DB:', id);
 }
 
 async function fetchStripsFromSupabase() {
