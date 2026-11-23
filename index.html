@@ -384,7 +384,17 @@ $('gal').onclick=openG;$('gal2').onclick=openG;
 startGalleryPolling(renderW);
 $('wclose').onclick=function(){$('wall').classList.add('hidden');$('fwc').classList.remove('over')};
 $('lbx').onclick=function(){$('lb').classList.add('hidden')};
-$('lbdel').onclick=async function(){if(lbRec){await del(lbRec.id);deletePhoto(lbRec.id,lbRec.storage_path).catch(function(e){console.error('[Supabase]',e)});lbRec=null}$('lb').classList.add('hidden');renderW()};
+$('lbdel').onclick=async function(){
+  if(lbRec){
+    var rec=lbRec;lbRec=null;
+    $('lb').classList.add('hidden');
+    try{await deletePhoto(rec.id,rec.storage_path);}catch(e){console.error('[Supabase] Delete gagal:',e);}
+    del(rec.id);
+    renderW();
+  } else {
+    $('lb').classList.add('hidden');
+  }
+};
 document.addEventListener('keydown',function(e){if(e.key==='Escape'){if(!$('lb').classList.contains('hidden'))$('lb').classList.add('hidden');else{$('wall').classList.add('hidden');$('fwc').classList.remove('over')}}});
 })();
 </script>
